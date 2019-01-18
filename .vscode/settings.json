@@ -1,0 +1,8 @@
+{
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+
+    "python.linting.pylintArgs": [
+        "----extension-pkg-whitelist=1xml"
+        ]
+}
