@@ -13,11 +13,16 @@ class glob:
     def __init__(self, globRadius, screenWidth, screenHeight):
         self.scrW = screenWidth
         self.scrH = screenHeight
-        self.R = globRadius
 
+        self.newRadius(globRadius)
         self.newPos()
         self.newColour()
     
+    def newRadius(self, globRadius):
+        rangeRP = 10
+        randomRFactor = random.randint(100-rangeRP, 100+rangeRP)
+        self.R = int(globRadius*randomRFactor/100)
+
     def newPos(self):
         randomX = random.randint(int(self.R*2), int(self.scrW-self.R*2))
         randomY = random.randint(int(self.R*2), int(self.scrH-self.R*2))

@@ -15,7 +15,7 @@ GREEN = (0, 255, 0, 255)
 TURQUOISE = (65, 245, 230, 255)
 RED = (255, 0, 0, 255)
 GRAY = (128, 128, 128, 255)
-GRAY_FADE = (128, 128, 128, 10)
+GRAY_FADE = (128, 128, 128, 120)
 SeeThrough = (0,0,0,0)
 
 #game-booleans
@@ -25,7 +25,7 @@ playerMoved = False
 
 #player related
 player = playerSprite
-glob1 = glob
+globs = []
 thrusterRectX = pygame.Rect
 thrusterRectY = pygame.Rect
 thrusterRectWidth = 0
@@ -36,36 +36,47 @@ blobRadius = 35
 gameL1Instructions = ["Welcome to "]
 
 #blocks
-miniGameOne_Paused_Block = pygame.Rect
+miniGameOne_Paused_BlockSurface = pygame.Surface((0,0))
+miniGameOne_Paused_BlockSurfacePos = (0,0)
 miniGameOne_Paused_ResumeBlock = pygame.Rect
 miniGameOne_Paused_OptionsBlock = pygame.Rect
 miniGameOne_Paused_LeaveBlock = pygame.Rect
 miniGameOne_Paused_HelpBlock = pygame.Rect
 
+#game-bar
+
+
 def graphicsPreparation(screenWidth, screenHeight):
     global scrW, scrH
-    global miniGameOne_Paused_Block, miniGameOne_Paused_ResumeBlock, miniGameOne_Paused_OptionsBlock, miniGameOne_Paused_LeaveBlock, miniGameOne_Paused_HelpBlock
-    global blobRadius, player, glob1
-    global ORANGE, GREEN, RED, TURQUOISE, GRAY
+    global miniGameOne_Paused_BlockSurface, miniGameOne_Paused_BlockSurfacePos, miniGameOne_Paused_ResumeBlock, miniGameOne_Paused_OptionsBlock, miniGameOne_Paused_LeaveBlock, miniGameOne_Paused_HelpBlock
+    global blobRadius, player, globs
+    global ORANGE, GREEN, RED, TURQUOISE, GRAY, GRAY_FADE
 
     scrW = screenWidth
     scrH = screenHeight
 
     #gameLevelOne
     ##PlayerSprite
+    blobRadius = scrH/40
     pThrust = scrW / 7.5
     t_max_scrW = 9
     kD = pThrust * (t_max_scrW)**2 / (scrW)**2
     player = playerSprite(int(scrW/2), int(scrH/2), blobRadius, ORANGE, pThrust, kD)
-    glob1 = glob(int(blobRadius/2.5), scrW, scrH)
+    globAmount = 20
+    for i in range(globAmount):
+        globs.append(glob(int(blobRadius/3), scrW, scrH))
+
 
     ##GameBlocksG
     ###gamePauseLayOver
-    miniGameOne_Paused_Block = menuBlock(int(scrW*43/100-scrH*4/100), int(scrH*35/100), int(scrW*14/100+scrH*8/100), int(scrH*30/100), "", 0, GRAY, False)
-    miniGameOne_Paused_ResumeBlock = menuBlock(int(scrW*43/100), int(scrH*39/100), int(scrW*14/100), int(scrH*6/100), "RESUME", 90, GREEN, True)
-    miniGameOne_Paused_OptionsBlock = menuBlock(int(scrW*43/100), int(scrH*47/100), int(scrW*14/100), int(scrH*6/100), "OPTIONS", 90, TURQUOISE, True)
+    miniGameOne_Paused_BlockSurfacePos = (int(scrW*43/100-scrH*4/100), int(scrH*35/100))
+    miniGameOne_Paused_BlockSurfaceDim = (int(scrW*14/100+scrH*8/100), int(scrH*30/100))
+    miniGameOne_Paused_BlockSurface = pygame.Surface(miniGameOne_Paused_BlockSurfaceDim).convert_alpha()
+    miniGameOne_Paused_BlockSurface.fill(GRAY_FADE)
+    miniGameOne_Paused_ResumeBlock = menuBlock(int(scrH*4/100), int(scrH*4/100), int(scrW*14/100), int(scrH*6/100), "RESUME", 90, GREEN, True)
+    miniGameOne_Paused_OptionsBlock = menuBlock(int(scrH*4/100), int(scrH*12/100), int(scrW*14/100), int(scrH*6/100), "OPTIONS", 90, TURQUOISE, True)
     miniGameOne_Paused_HelpBlock = menuBlock
-    miniGameOne_Paused_LeaveBlock = menuBlock(int(scrW*43/100), int(scrH*55/100), int(scrW*14/100), int(scrH*6/100), "LEAVE", 90, RED, True)
+    miniGameOne_Paused_LeaveBlock = menuBlock(int(scrH*4/100), int(scrH*20/100), int(scrW*14/100), int(scrH*6/100), "LEAVE", 90, RED, True)
 
 def stateEventHandler(state):
     global xMouse, yMouse
@@ -74,16 +85,15 @@ def stateEventHandler(state):
         if(event.type == pygame.MOUSEBUTTONUP):
             xMouse, yMouse = event.pos
             checkMouseClick(xMouse, yMouse, state)
-        elif(event.type == pygame.KEYDOWN):
+        if(event.type == pygame.KEYDOWN):
             checkKeyPress(event)
-        elif(event.type == pygame.KEYUP):
+        if(event.type == pygame.KEYUP):
             checkKeyRelease(event, state)
-
     
 
 def drawState(window, time):
     global miniGameOne_Paused_Block, miniGameOne_Paused_ResumeBlock, miniGameOne_Paused_OptionsBlock, miniGameOne_Paused_LeaveBlock, miniGameOne_Paused_HelpBlock
-    global gamePaused, player, playerMoved, dt, glob1, playerJustUnPaused
+    global gamePaused, player, playerMoved, dt, globs, playerJustUnPaused
     global scrH, scrW
 
     dt = time
@@ -94,28 +104,29 @@ def drawState(window, time):
         window.fill(BLACK)
 
     #player drawing
-    player.drawPlayerSurface()
+    player.posPlayerSurface()
     window.blit(player.playerShadow, (player.pShadowX, player.pShadowY))
-    window.blit(player.playerSurface, (player.pSurfaceX, player.pSurfaceY))
+    window.blit(player.getPlayerSurface(), (player.pSurfaceX, player.pSurfaceY))
 
     #glob drawing
-    pygame.draw.circle(window, glob1.COLOUR, (glob1.x, glob1.y), glob1.R, 0)
+    for i in range(len(globs)):
+        pygame.draw.circle(window, globs[i].COLOUR, (globs[i].x, globs[i].y), globs[i].R, 0)
 
     
     
     #gamepaused screen
-    if(gamePaused == True):
-        pygame.draw.rect(window, miniGameOne_Paused_Block.COLOUR, miniGameOne_Paused_Block.block())
+    if(gamePaused == True):  
 
-        pygame.draw.rect(window, miniGameOne_Paused_ResumeBlock.COLOUR, miniGameOne_Paused_ResumeBlock.block())
-        window.blit(miniGameOne_Paused_ResumeBlock.textShow(0), miniGameOne_Paused_ResumeBlock.textShow(1))
+        pygame.draw.rect(miniGameOne_Paused_BlockSurface, miniGameOne_Paused_ResumeBlock.COLOUR, miniGameOne_Paused_ResumeBlock.block())
+        miniGameOne_Paused_BlockSurface.blit(miniGameOne_Paused_ResumeBlock.textShow(0), miniGameOne_Paused_ResumeBlock.textShow(1))
 
-        pygame.draw.rect(window, miniGameOne_Paused_OptionsBlock.COLOUR, miniGameOne_Paused_OptionsBlock.block())
-        window.blit(miniGameOne_Paused_OptionsBlock.textShow(0), miniGameOne_Paused_OptionsBlock.textShow(1))
+        pygame.draw.rect(miniGameOne_Paused_BlockSurface, miniGameOne_Paused_OptionsBlock.COLOUR, miniGameOne_Paused_OptionsBlock.block())
+        miniGameOne_Paused_BlockSurface.blit(miniGameOne_Paused_OptionsBlock.textShow(0), miniGameOne_Paused_OptionsBlock.textShow(1))
 
-        pygame.draw.rect(window, miniGameOne_Paused_LeaveBlock.COLOUR, miniGameOne_Paused_LeaveBlock.block())
-        window.blit(miniGameOne_Paused_LeaveBlock.textShow(0), miniGameOne_Paused_LeaveBlock.textShow(1))
+        pygame.draw.rect(miniGameOne_Paused_BlockSurface, miniGameOne_Paused_LeaveBlock.COLOUR, miniGameOne_Paused_LeaveBlock.block())
+        miniGameOne_Paused_BlockSurface.blit(miniGameOne_Paused_LeaveBlock.textShow(0), miniGameOne_Paused_LeaveBlock.textShow(1))
     
+        window.blit(miniGameOne_Paused_BlockSurface, miniGameOne_Paused_BlockSurfacePos)
 
     if(gamePaused == False):
         if(playerMoved == True):
@@ -123,25 +134,26 @@ def drawState(window, time):
             player.playerMove(dt, scrH, scrW)
 
 def checkMouseClick(x, y, state):
-    global miniGameOne_Paused_ResumeBlock, miniGameOne_Paused_OptionsBlock, miniGameOne_Paused_LeaveBlock, miniGameOne_Paused_HelpBlock
+    global miniGameOne_Paused_BlockSurfacePos, miniGameOne_Paused_ResumeBlock, miniGameOne_Paused_OptionsBlock, miniGameOne_Paused_LeaveBlock, miniGameOne_Paused_HelpBlock
     global gamePaused, gameJustUnPaused
     
-    #Check exit button.
-    if(miniGameOne_Paused_LeaveBlock.block().collidepoint(x,y) == True):
-        #For now it's exit application, later this is just back to main menu.
+    pauseX = x-miniGameOne_Paused_BlockSurfacePos[0]
+    pauseY = y-miniGameOne_Paused_BlockSurfacePos[1]
 
-        
+    #Check exit button.
+    if(miniGameOne_Paused_LeaveBlock.block().collidepoint(pauseX, pauseY) == True):
+        #For now it's exit application, later this is just back to main menu.
         clickConfirmed = True
         
         state.FPS = 15
         state.state = 0
 
         #Check other buttons?
-    elif(miniGameOne_Paused_ResumeBlock.block().collidepoint(x,y) == True):
+    elif(miniGameOne_Paused_ResumeBlock.block().collidepoint(pauseX, pauseY) == True):
         #Start game!
         pauseGame(False, state)
         clickConfirmed = True
-    elif(miniGameOne_Paused_OptionsBlock.block().collidepoint(x, y) == True):
+    elif(miniGameOne_Paused_OptionsBlock.block().collidepoint(pauseX, pauseY) == True):
         #Open options.
         clickConfirmed = True
         
@@ -156,16 +168,16 @@ def checkKeyPress(keyPressedIn):
     keyPressed = pygame.key.get_pressed()
     #game movement
     if(gamePaused == False): 
-        if(keyPressed[pygame.K_DOWN]):
+        if(keyPressed[pygame.K_DOWN] or keyPressed[pygame.K_s]):
             player.dT = True
             playerMoved = True
-        if(keyPressed[pygame.K_UP]):
+        if(keyPressed[pygame.K_UP] or keyPressed[pygame.K_w]):
             player.uT = True
             playerMoved = True
-        if(keyPressed[pygame.K_RIGHT]):
+        if(keyPressed[pygame.K_RIGHT] or keyPressed[pygame.K_d]):
             player.rT = True
             playerMoved = True
-        if(keyPressed[pygame.K_LEFT]):
+        if(keyPressed[pygame.K_LEFT] or keyPressed[pygame.K_a]):
             player.lT = True
             playerMoved = True
 
@@ -178,13 +190,13 @@ def checkKeyRelease(event, state):
         if(event.key == pygame.K_ESCAPE and keyRegistered == False):
             pauseGame(True, state)
             keyRegisterd = True
-        if(event.key == pygame.K_DOWN and keyRegistered == False):
+        if(event.key == pygame.K_DOWN or event.key == pygame.K_s):
             player.dT = False
-        if(event.key == pygame.K_UP and keyRegistered == False):
+        if(event.key == pygame.K_UP or pygame.K_w):
             player.uT = False
-        if(event.key == pygame.K_RIGHT and keyRegistered == False):
+        if(event.key == pygame.K_RIGHT or pygame.K_d):
             player.rT = False
-        if(event.key == pygame.K_LEFT and keyRegistered == False):
+        if(event.key == pygame.K_LEFT or pygame.K_a):
             player.lT = False
         if(player.dT == False and player.uT == False and player.rT == False and player.lT == False):
             if(player.v_x == 0 and player.v_y ==0):
@@ -210,5 +222,5 @@ def pauseGame(pause, state):
         state.gameHasBeenpaused = gamePaused
         state.FPS = 60
 
-
+#Key recognition of developer system is still buggy. E.g. hold down arrow(down), press another key and then release that same key. down thrust will also switch off... Other key combinations are also faulty.
     
