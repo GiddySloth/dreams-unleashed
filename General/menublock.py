@@ -81,4 +81,8 @@ class menuBlock:
         self.displayText = newText
         self.fontSize()
         self.textRender()
+    
+    def setNewTextNoFontRender(self, newText):
+        self.displayText = newText
+        self.textRender()
         

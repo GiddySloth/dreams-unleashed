@@ -5,27 +5,29 @@ class glob:
     scrW = 1920
     scrH = 1080
 
+    eaten = False
+
     R = 1
     COLOUR = [255, 255, 255, 255]
     x = 0
     y = 0
 
-    def __init__(self, globRadius, screenWidth, screenHeight):
+    def __init__(self, globRadius, screenWidth, screenHeight, gameBarHeight):
         self.scrW = screenWidth
         self.scrH = screenHeight
 
         self.newRadius(globRadius)
-        self.newPos()
+        self.newPos(gameBarHeight)
         self.newColour()
     
     def newRadius(self, globRadius):
-        rangeRP = 10
+        rangeRP = 15
         randomRFactor = random.randint(100-rangeRP, 100+rangeRP)
         self.R = int(globRadius*randomRFactor/100)
 
-    def newPos(self):
+    def newPos(self, gameBarHeight):
         randomX = random.randint(int(self.R*2), int(self.scrW-self.R*2))
-        randomY = random.randint(int(self.R*2), int(self.scrH-self.R*2))
+        randomY = random.randint(int(self.R*2), int(self.scrH-self.R*2-gameBarHeight))
 
         self.x = randomX
         self.y = randomY
@@ -42,7 +44,6 @@ class glob:
         #print("Glob colour (q,r,z) = (" + str(colour[0]) + ", " + str(colour[1]) + ", " + str(colour[2]) + ")")
 
     def beenEaten(self):
-        self.newPos()
-        self.newColour()
+        self.eaten == True
     
 

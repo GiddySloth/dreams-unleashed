@@ -52,7 +52,8 @@ def graphicsPreparation(screenWidth, screenHeight):
 def stateEventHandler(state):
     global xMouse, yMouse
 
-    if(state.gameHasBeenPaused == True):
+    if(state.gameHasBeenPausedMenu == True):
+        state.gameHasbeenPausedMenu = False
         gameMenu_StartBlock.setNewText("RESUME GAME")
         gameMenu_StartBlockSubTitle.setNewText("Continue Playing Dreams Unleashed")
 

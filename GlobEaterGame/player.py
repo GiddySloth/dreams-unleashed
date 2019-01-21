@@ -188,7 +188,7 @@ class playerSprite:
         pygame.draw.circle(self.playerSurfaceT_URDL, self.COLOUR, (int(self.playerSurfaceNoThrust.get_width()/2), int(self.playerSurfaceNoThrust.get_height()/2)), self.R, self.W)
 
 
-        self.shadowSurface = pygame.Surface((self.playerSurfaceNoThrust.get_width(), self.playerSurfaceNoThrust.get_height())).convert()
+        self.shadowSurface = pygame.Surface((int(self.playerSurfaceNoThrust.get_width()*1.1), int(self.playerSurfaceNoThrust.get_height()*1.1))).convert()
         self.shadowSurface.fill(self.BLACK)
   
     
@@ -196,6 +196,7 @@ class playerSprite:
         DragY = -self.v_y * abs(self.v_y) * self.kD
         DragX = -self.v_x * abs(self.v_x) * self.kD
 
+        #y-axis
         if(self.uT == True and self.dT != True):
             if(self.t <= abs(DragY)):
                 self.a_y = 0
@@ -218,6 +219,7 @@ class playerSprite:
                 elif(self.v_y < 0):
                     self.v_y = self.v_y + self.a_y*dt
         
+        #x-axis
         if(self.rT == True and self.lT != True):
             if(self.t <= abs(DragX)):
                 self.a_x = 0
@@ -240,18 +242,18 @@ class playerSprite:
                 elif(self.v_x < 0):
                     self.v_x = self.v_x + self.a_x*dt
 
-    def playerMove(self, dt, scrH, scrW):
+    def playerMove(self, dt, scrH, scrW, gameBarHeight):
 
         dy = int(dt*self.v_y)
         dx = int(dt*self.v_x)
         d_left = int(self.x - self.R)
         d_right = int(scrW-self.x - self.R)
         d_top = int(self.y - self.R)
-        d_bottom = int(scrH-self.y - self.R)
+        d_bottom = int(-gameBarHeight+scrH -self.y - self.R)
 
         if(self.v_x > 0):
             if(abs(dx) < d_right):
-                
+                self.prevX = self.x
                 self.x = self.x + dx
             else:
                 self.v_x = 0
@@ -263,6 +265,7 @@ class playerSprite:
             else:
                 self.v_x = 0
                 self.lT = False
+        
         if(self.v_y > 0):
             if(abs(dy) < d_bottom):
                 self.prevY = self.y
@@ -278,12 +281,12 @@ class playerSprite:
                 self.v_y = 0
                 self.uT = False
 
-    def posPlayerSurface(self):
+    def posPlayerSurface(self, gameBarHeight):
 
         self.pSurfaceX = int(self.x - self.playerSurfaceNoThrust.get_width()/2)
         self.pSurfaceY = int(self.y - self.playerSurfaceNoThrust.get_height()/2)
-        self.pShadowX = int(self.prevX - self.playerSurfaceNoThrust.get_width()/2)
-        self.pShadowY = int(self.prevY - self.playerSurfaceNoThrust.get_height()/2)
+        self.pShadowX = int(self.prevX - self.shadowSurface.get_width()/2)
+        self.pShadowY = int(self.prevY - self.shadowSurface.get_height()/2)
     
     def getPlayerSurface(self):
         thrustersOn = 0

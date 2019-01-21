@@ -18,6 +18,8 @@ Instructions:
 
 Changelog:
 
-    0.1a2(19 January 2018) (current) - README text added. WASD keys can now be used to move the player alongside the arrow keys. Surface optimizations. Future-proofing.
+    0.1a3(21 January 2018) (current) - Globs can now be eaten. Added music made by Mario, more to come. A gamebar was added with a score counter. Further surface optimization and future-proofing done. Windows resolution issue for certain monitors (with high PPI's). Fixed player movement thruster related issues.
+
+    0.1a2(19 January 2018) - README text added. WASD keys can now be used to move the player alongside the arrow keys. Surface optimizations. Future-proofing.
 
     0.1a1(18 January 2018) - Main game menu has been built. Mini game one's environment has been built. The player sprite can be moved by the user.
