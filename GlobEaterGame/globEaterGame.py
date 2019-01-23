@@ -27,7 +27,7 @@ playerMoved = False
 #player related
 player = playerSprite
 globs = []
-globAmount = 20
+blockstacles = []
 thrusterRectX = pygame.Rect
 thrusterRectY = pygame.Rect
 thrusterRectWidth = 0
@@ -53,10 +53,10 @@ miniGameOne_Paused_HelpBlock = pygame.Rect
 #game-bar
 
 
-def graphicsPreparation(screenWidth, screenHeight, gameBarHeight, gameHeight):
+def graphicsPreparation(state, screenWidth, screenHeight, gameBarHeight, gameHeight):
     global scrW, scrH, miniGameOne_Surface_Pos, gameBarH
     global miniGameOne_Surface, miniGameOne_Paused_BlockSurface, miniGameOne_Paused_BlockSurfacePos, miniGameOne_Paused_ResumeBlock, miniGameOne_Paused_OptionsBlock, miniGameOne_Paused_LeaveBlock, miniGameOne_Paused_HelpBlock
-    global blobRadius, player, globs, globAmount
+    global blobRadius, player, globs
     global ORANGE, GREEN, RED, TURQUOISE, GRAY, GRAY_FADE
 
     scrW = screenWidth
@@ -69,13 +69,13 @@ def graphicsPreparation(screenWidth, screenHeight, gameBarHeight, gameHeight):
     #gameLevelOne
     ##PlayerSprite
     blobRadius = scrH/40
-    pThrust = scrW / 7.5
-    t_max_scrW = 9
+    pThrust = scrW / 5
+    t_max_scrW = 12
     kD = pThrust * (t_max_scrW)**2 / (scrW)**2
     player = playerSprite(int(scrW/2), int((scrH-gameBarH)/2), blobRadius, ORANGE, pThrust, kD)
     
     #create globs and obstacles
-    setLevel()
+    setLevel(state, player)
 
     ##GameBlocksG
     ###gamePauseLayOver
@@ -102,7 +102,7 @@ def stateEventHandler(state):
 
 def drawState(window, time, state):
     global miniGameOne_Surface, miniGameOne_Surface_Pos, miniGameOne_Paused_Block, miniGameOne_Paused_ResumeBlock, miniGameOne_Paused_OptionsBlock, miniGameOne_Paused_LeaveBlock, miniGameOne_Paused_HelpBlock
-    global gamePaused, player, playerMoved, dt, globs, playerJustUnPaused
+    global gamePaused, player, playerMoved, dt, globs, blockstacles, playerJustUnPaused
     global scrH, scrW, gameBarH
 
     dt = time
@@ -118,17 +118,19 @@ def drawState(window, time, state):
     player.posPlayerSurface(gameBarH)
     miniGameOne_Surface.blit(player.playerShadow, (player.pShadowX, player.pShadowY))
     miniGameOne_Surface.blit(player.getPlayerSurface(), (player.pSurfaceX, player.pSurfaceY))
-    
-    
-    #player.posPlayerSurface(0)
-    #window.blit(player.playerShadow, (player.pShadowX, player.pShadowY))
-    #window.blit(player.getPlayerSurface(), (player.pSurfaceX, player.pSurfaceY))
+
+    #obstacle drawing
+    for i in range(len(blockstacles)):
+        tempBlockstacleRect = pygame.Rect(0,0, int(2*blockstacles[i].R), int(2*blockstacles[i].R))
+        tempBlockstacleRect.center = (int(blockstacles[i].x), int(blockstacles[i].y))
+        pygame.draw.rect(miniGameOne_Surface, blockstacles[i].COLOUR, tempBlockstacleRect, 0)
+
 
     #glob drawing
-    for i in range(len(globs)):
-        pygame.draw.circle(miniGameOne_Surface, globs[i].COLOUR, (globs[i].x, globs[i].y), globs[i].R, 0)
+    for k in range(len(globs)):
+        pygame.draw.circle(miniGameOne_Surface, globs[k].COLOUR, (globs[k].x, globs[k].y), globs[k].R, 0)
     
-    miniGameOne_Surface.convert()
+    
 
     #gamepaused screen
     if(gamePaused == True):  
@@ -149,18 +151,40 @@ def drawState(window, time, state):
             player.velocity(dt)
             player.playerMove(dt, scrH, scrW, gameBarH)
 
-            toRemoveList = []
+            globsToRemoveList = []
 
             for j in range(len(globs)):
                 if(checkGlobCollision(globs[j]) == True):
-                    toRemoveList.append(j)
+                    globsToRemoveList.append(j)
 
-            for n in range(len(toRemoveList)):
+            for n in range(len(globsToRemoveList)):
                 scoreHandling(state, "globEaten")
-                globs.pop(toRemoveList[n])
+                globs.pop(globsToRemoveList[len(globsToRemoveList)-1-n])
             
+            blockstaclesToRemoveList = []
+
+            for u in range(len(blockstacles)):
+                if(checkGlobCollision(blockstacles[u]) == True):
+                    blockstaclesToRemoveList.append(u)
+
+            for m in range(len(blockstaclesToRemoveList)):
+                scoreHandling(state, "playerHitBlockstacle")
+                blockstacles.pop(blockstaclesToRemoveList[len(blockstaclesToRemoveList)-1-m])
+
             if(len(globs) == 0):
-                setLevel()
+                state.dreamLayer = state.dreamLayer + 1
+                setLevel(state, player)
+                miniGameOne_Surface.fill(BLACK)
+
+            if(state.playerHealth <=0 ):
+                state.dreamLayer = 1
+                state.score = 0
+                setLevel(state, player)
+                state.playerHealth = 100
+                miniGameOne_Surface.fill(BLACK)
+
+
+    miniGameOne_Surface.convert()
             
 
 def checkMouseClick(x, y, state):
@@ -257,11 +281,68 @@ def checkGlobCollision(globCol):
     else:
         return False
 
-def setLevel():
-    global globs, globAmount, blobRadius, scrW, scrH, gameBarH
+def setLevel(state, player):
+    global globs, blockstacles, blobRadius, scrW, scrH, gameBarH
 
+    state.gameBarChange == True
+
+    #setting amounts and sizes of globs and blockstacles depending on level
+    blockstaclesAmount = int(15*(1.15)**(state.dreamLayer-1))
+    blockstacleSize = int((blobRadius/1.5)*(1.2)**(state.dreamLayer-1))
+    globAmount = int(20*(1.1)**(state.dreamLayer-1))
+    globRadius = int((blobRadius/1.5)*(0.95)**(state.dreamLayer-1))
+
+    #removal of still existing blockstacles.
+    tempBlockstaclesAmount = blockstaclesAmount - (blockstaclesAmount - len(blockstacles))
+    for b in range(tempBlockstaclesAmount):
+        blockstacles.pop(tempBlockstaclesAmount-1-b)
+    
+    #removal of still existing globs
+    tempGlobAmount = globAmount - (globAmount - len(globs))
+    for b in range(tempGlobAmount):
+        globs.pop(tempGlobAmount-1-b)
+
+    #reappointing of blockstacles
+    for j in range(blockstaclesAmount):
+        unChecked = True
+
+        print(str(player.x) + "," + str(player.y) + ", " + str(player.R))
+
+        while unChecked:
+            confirmed = True
+            blockstacleTemp = glob(blockstacleSize, scrW, scrH, gameBarH)
+
+            distanceBlockstacleToPlayer = ((blockstacleTemp.x-player.x)**2 + (blockstacleTemp.y-player.y)**2) ** (0.5)
+
+            if(distanceBlockstacleToPlayer < (5*player.R)):
+                confirmed = False
+            
+            if(confirmed == True):
+                unChecked = False
+                blockstacles.append(blockstacleTemp)
+        
+
+    #reappointing of globs
     for i in range(globAmount):
-        globs.append(glob(int(blobRadius/2.8), scrW, scrH, gameBarH))
+        unChecked = True
+        
+        while unChecked:
+            confirmed = True
+            globTemp = glob(globRadius, scrW, scrH, gameBarH)
+            
+            for m in range(len(blockstacles)):
+                distanceGlobToBlock = ((globTemp.x-blockstacles[m].x)**2 + (globTemp.y-blockstacles[m].y)**2) ** (0.5)
+                if(distanceGlobToBlock <= (globTemp.R+blockstacles[m].R)):
+                    confirmed = False
+                    break
+            
+            distanceGlobToPlayer = ((globTemp.x-player.x)**2 + (globTemp.y-player.y)**2) ** (0.5)
+            if(distanceGlobToPlayer < (5*player.R)):
+                confirmed = False
+            
+            if(confirmed == True):
+                unChecked = False
+                globs.append(globTemp)
 
 def pauseGame(pause, state):
     global gamePaused, gameJustUnPaused
@@ -280,6 +361,9 @@ def pauseGame(pause, state):
 def scoreHandling(state, gameEvent):
     if(gameEvent == "globEaten"):
         state.score = state.score + 1
+        state.gameBarChange == True
+    elif(gameEvent == "playerHitBlockstacle"):
+        state.playerHealth = state.playerHealth - 5
         state.gameBarChange == True
 
 #Key recognition of developer system is still buggy. E.g. hold down arrow(down), press another key and then release that same key. down thrust will also switch off... Other key combinations are also faulty.

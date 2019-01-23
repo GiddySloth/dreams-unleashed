@@ -46,6 +46,7 @@ class playerSprite:
     BLACK = (0,0,0,255)
     RED = (255, 0, 0, 255)
 
+
     #player surfaces, different ones for each thruster set up so they don't have to be drawn.
     playerSurfaceNoThrust = pygame.Surface((0,0))
     playerSurfaceT_R = pygame.Surface((0,0))

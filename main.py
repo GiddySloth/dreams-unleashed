@@ -13,7 +13,7 @@ import gameBar
 state = State
 
 #Version
-version = "0.1a3"
+version = "0.1a4"
 
 #Graphics-related.
 window = pygame.Surface
@@ -40,7 +40,7 @@ def main():
 
     window = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
 
-    graphicsPreparation()
+    graphicsPreparation(state)
 
     pygame.display.set_caption('PyGame Practice')
 
@@ -77,7 +77,7 @@ def mainLoop():
     
 
 
-def graphicsPreparation():
+def graphicsPreparation(state):
 
     scrInfo = pygame.display.Info()
     scrH = scrInfo.current_h
@@ -88,7 +88,7 @@ def graphicsPreparation():
 
     gameMenu.graphicsPreparation(scrW, scrH)
     gameBar.graphicsPreparation(scrW, scrH, gameBarH)
-    globEaterGame.graphicsPreparation(scrW, scrH, gameBarH, gameWindowH)
+    globEaterGame.graphicsPreparation(state, scrW, scrH, gameBarH, gameWindowH)
 
 def soundtrack():
     pygame.mixer.music.load("Soundtrack/GlobEater_Track1.wav")

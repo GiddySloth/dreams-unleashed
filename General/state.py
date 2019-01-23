@@ -6,6 +6,8 @@ class State:
     FPS = 0
 
     score = 0
+    playerHealth = 100
+    dreamLayer = 1
 
     gameHasBeenPaused = False
     gameHasBeenPausedMenu = False
