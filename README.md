@@ -12,13 +12,15 @@ Prerequisites:
 
 Instructions:
     
-    Run the "main.py" file using python to start the game. Use the arrow keys to move the player and eat the little globs, avoid the squares at all cost...
+    Run the "main.py" file using python to start the game. Use the arrow keys to move the player and eat the little globs, avoid the squares at all cost... Use the ESC key to pause the game.
 
 ---
 
 Changelog:
 
-    0.1a4(23 January 2018) (CURRENT) - There are now also obstacles for the player to avoid in the glob eater game as it will damage their health. Dying will reset the player's score. Level implementation has been added.
+    0.1a5(26 January 2018) (current) Glob eater level generation, scoring, and block damage tweaked. Sliding through blocks bug fixed. Game-over screen added.
+
+    0.1a4(23 January 2018) - There are now also obstacles for the player to avoid in the glob eater game as it will damage their health. Dying will reset the player's score. Level implementation has been added.
 
     0.1a3(21 January 2018) - Globs can now be eaten. Added music made by Mario, more to come. A gamebar was added with a score counter. Further surface optimization and future-proofing done. Windows resolution issue for certain monitors (with high PPI's). Fixed player movement thruster related issues.
 

@@ -8,12 +8,13 @@ from state import State
 import gameMenu
 import globEaterGame
 import gameBar
+import gameLayover
 
 #State-related.
 state = State
 
 #Version
-version = "0.1a4"
+version = "0.1a5"
 
 #Graphics-related.
 window = pygame.Surface
@@ -21,6 +22,7 @@ fpsClock = pygame.time.Clock()
 FPS = 15
 dt = 0
 
+BLACK = (0,0,0,255)
 
 def main():
     global currentState, window, state, FPS
@@ -52,7 +54,7 @@ def main():
 
 def mainLoop():
     
-    global dt, fpsClock, window, state
+    global dt, fpsClock, window, state, BLACK
 
     loopInfinite = True
 
@@ -62,14 +64,25 @@ def mainLoop():
         if(currentState == "Game Menu"):
             gameMenu.stateEventHandler(state)
             gameMenu.drawState(window)
-        elif(currentState == "GlobEaterGame"):
-            if(state.gameBarChange == True):
-                gameBar.drawState(window, state)
-                state.gameBarChange == False
-            
+        elif(currentState == "GlobEaterGame"):  
             state.FPS = 60
             globEaterGame.stateEventHandler(state)
             globEaterGame.drawState(window, dt, state)
+
+            if(state.gameHasBeenPaused == True or state.gameOver == True):
+                gameLayover.stateEventHandler(state)
+                gameLayover.drawState(state, window)
+            elif(state.gameHasBeenPaused == False and state.gameOver == False):
+                if(state.gameJustBeenUnPaused == True):
+                    state.gameJustBeenUnPaused = False
+                    window.fill(BLACK)
+                elif(state.gameJustRestarted == True):
+                    state.gameJustRestarted = False
+                    window.fill(BLACK)
+            
+            if(state.gameBarChange == True):
+                gameBar.drawState(window, state)
+                state.gameBarChange == False
         
         pygame.display.update()
         dt = fpsClock.tick(state.FPS) / 1000
@@ -87,6 +100,7 @@ def graphicsPreparation(state):
     gameWindowH = scrH - gameBarH
 
     gameMenu.graphicsPreparation(scrW, scrH)
+    gameLayover.graphicsPreparation(scrW, scrH)
     gameBar.graphicsPreparation(scrW, scrH, gameBarH)
     globEaterGame.graphicsPreparation(state, scrW, scrH, gameBarH, gameWindowH)
 

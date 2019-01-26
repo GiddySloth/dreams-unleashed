@@ -53,9 +53,17 @@ def stateEventHandler(state):
     global xMouse, yMouse
 
     if(state.gameHasBeenPausedMenu == True):
-        state.gameHasbeenPausedMenu = False
+        state.gameHasBeenPausedMenu = False
         gameMenu_StartBlock.setNewText("RESUME GAME")
         gameMenu_StartBlockSubTitle.setNewText("Continue Playing Dreams Unleashed")
+
+    if(state.gameHasBeenDead == True):
+        state.gameHasBeenDead = False
+        state.gameOver == False
+        state.score = 0
+        state.playerHealth = 100
+        gameMenu_StartBlock.setNewText("RESTART GAME")
+        gameMenu_StartBlockSubTitle.setNewText("Start A New Game Of Dreams Unleashed")
 
     for event in pygame.event.get():
         if(event.type == pygame.MOUSEBUTTONUP):

@@ -335,4 +335,16 @@ class playerSprite:
                 return self.playerSurfaceT_D
         elif(thrustersOn == 0):
             return self.playerSurfaceNoThrust
+
+    def died(self, x_pos, y_pos):
+        self.lT = False
+        self.uT = False
+        self.dT = False
+        self.rT = False
+        self.v_x = 0
+        self.v_y = 0
+        self.a_x = 0
+        self.a_y = 0
+        self.x = x_pos
+        self.y = y_pos
         

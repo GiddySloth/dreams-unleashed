@@ -50,11 +50,16 @@ def drawState(window, state):
     pygame.draw.rect(gameBarSurface, gameBar_DreamLayerBlock.COLOUR, gameBar_DreamLayerBlock.block())
     gameBarSurface.blit(gameBar_DreamLayerBlock.textShow(0), gameBar_DreamLayerBlock.textShow(1))
 
-    gameBar_ScoreBlock.setNewTextNoFontRender("Score: " + str(state.score))
+    gameBar_ScoreBlock.setNewTextNoFontRender("Score: " + str(int(state.score)))
     pygame.draw.rect(gameBarSurface, gameBar_ScoreBlock.COLOUR, gameBar_ScoreBlock.block())
     gameBarSurface.blit(gameBar_ScoreBlock.textShow(0), gameBar_ScoreBlock.textShow(1))
 
-    gameBar_HealthBlock.setNewTextNoFontRender("HP: " + str(state.playerHealth))
+    if(state.playerHealth < 1 and state.playerHealth != 0):
+        gameBar_HealthBlock.setNewTextNoFontRender("HP: 1")
+    else:
+        gameBar_HealthBlock.setNewTextNoFontRender("HP: " + str(int(state.playerHealth)))
+
+    
     pygame.draw.rect(gameBarSurface, gameBar_HealthBlock.COLOUR, gameBar_HealthBlock.block())
     gameBarSurface.blit(gameBar_HealthBlock.textShow(0), gameBar_HealthBlock.textShow(1))
 
